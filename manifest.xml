@@ -1,0 +1,18 @@
+<package>
+  <description brief="PTU position/orientation control task">
+  Pan and Tilt Unit abstract controller to set the orientation commands. This is an abstraction layer which comunicates with the platform_driver.
+  </description>
+  <author>Javier Hidalgo Carrio/javier.hidalgo_carrio@dfki.de</author>
+  <license>GPL v2 or later</license>
+  <url>http://</url>
+  <logo>http://</logo>
+  <depend package="base/cmake" />
+  <!--
+   To add any dependencies use the depend tag
+  <depend package="dummy-dependency-0" />
+	...
+  <depend package="dummy-dependency-n-1" />
+  <depend package="dummy-dependency-n" />
+  -->
+  <depend package="base/orogen/types" />
+</package>
