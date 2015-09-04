@@ -61,6 +61,9 @@ task_context "Task" do
     output_port('mast_to_ptu_out', 'base/samples/RigidBodyState').
 	doc 'Transformation for the transformer: Pan and Tilt Unit (PTU) frame expressed in the mast frame.'
 
+    output_port('ptu_samples_out', 'base/samples/Joints').
+        doc 'Timestamped ptu joints smaples.'
+
     port_driven
 
 end

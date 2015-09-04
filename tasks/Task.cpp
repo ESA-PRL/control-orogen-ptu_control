@@ -110,6 +110,8 @@ void Task::updateHook()
     /** Compute the new transformation for the transformer **/
     if (_ptu_samples.read(ptu_samples) == RTT::NewData)
     {
+        _ptu_samples_out.write(ptu_samples);
+
         /** The transformation for the transformer **/
         Eigen::Affine3d tf; tf.setIdentity();
         double pan_value = ptu_samples.getElementByName(ptuReadNames[0]).position;
