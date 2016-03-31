@@ -3,6 +3,9 @@
 #ifndef PTU_CONTROL_TASK_TASK_HPP
 #define PTU_CONTROL_TASK_TASK_HPP
 
+#include <base/samples/RigidBodyState.hpp>
+#include <base/commands/Joints.hpp>
+
 #include "ptu_control/TaskBase.hpp"
 
 namespace ptu_control {
