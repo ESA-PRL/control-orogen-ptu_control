@@ -56,6 +56,14 @@ bool Task::startHook()
 {
     if (! TaskBase::startHook())
         return false;
+
+    /** Send first command to zero pan and tilt to avoid joint dispatcher getting stuck (waiting for PTU commands) without sending locomotion commands **/
+    ptu_joints_commands_out[ptuCommandNames[0]].position = 0.00;
+    ptu_joints_commands_out[ptuCommandNames[1]].position = 0.00;
+    ptu_joints_commands_out[ptuCommandNames[0]].speed = base::NaN<float>();
+    ptu_joints_commands_out[ptuCommandNames[1]].speed = base::NaN<float>();
+    _ptu_commands_out.write(ptu_joints_commands_out);
+
     return true;
 }
 void Task::updateHook()
