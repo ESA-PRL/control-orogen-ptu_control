@@ -51,7 +51,12 @@ task_context "Task" do
     input_port('ptu_samples', '/base/samples/Joints').
 	doc 'Timestamped ptu joints samples readings.'
 
+    input_port("pan_command_in", "double").
+        doc("PTU pan command radians")
 
+    input_port("tilt_command_in", "double").
+        doc("PTU tilt command radians")
+ 
     #******************************
     #******* Output Ports *********
     #******************************
@@ -64,6 +69,12 @@ task_context "Task" do
     output_port('ptu_samples_out', 'base/samples/Joints').
         doc 'Timestamped ptu joints smaples.'
 
+    output_port("pan_samples_out", "double").
+        doc("PTU pan sample radians")
+
+    output_port("tilt_samples_out", "double").
+        doc("PTU tilt sample radians")
+ 
     port_driven
 
 end

@@ -111,7 +111,36 @@ void Task::updateHook()
             _ptu_commands_out.write(ptu_joints_commands_out);
         }
     }
+//    else
+    {
+        bool new_command = false;
 
+        double pan_command;
+        if (_pan_command_in.read(pan_command) == RTT::NewData)
+        {
+            ptu_joints_commands_out[ptuCommandNames[0]].position = pan_command;
+
+            /** Set the velocities to NaN **/
+            ptu_joints_commands_out[ptuCommandNames[0]].speed = base::NaN<float>();
+            new_command = true;
+        }
+
+        double tilt_command;
+        if (_tilt_command_in.read(tilt_command) == RTT::NewData)
+        {
+            ptu_joints_commands_out[ptuCommandNames[1]].position = tilt_command;
+
+            /** Set the velocities to NaN **/
+            ptu_joints_commands_out[ptuCommandNames[1]].speed = base::NaN<float>();
+            new_command = true;
+        }
+
+        if (new_command)
+        {
+            _ptu_commands_out.write(ptu_joints_commands_out);
+            new_command = false;
+        }
+    }
 
     base::samples::Joints ptu_samples;
 
@@ -124,6 +153,9 @@ void Task::updateHook()
         Eigen::Affine3d tf; tf.setIdentity();
         double pan_value = ptu_samples.getElementByName(ptuReadNames[0]).position;
         double tilt_value = ptu_samples.getElementByName(ptuReadNames[1]).position;
+
+        _pan_samples_out.write(pan_value);
+        _tilt_samples_out.write(tilt_value);
 
         tf = Eigen::Quaternion <double>(Eigen::AngleAxisd(pan_value, Eigen::Vector3d::UnitZ()));
         tf.translation() = Eigen::Vector3d (0.00, 0.00, _mast2tilt_link.value());
