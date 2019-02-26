@@ -70,6 +70,9 @@ void Task::updateHook()
 {
     TaskBase::updateHook();
 
+    ptu_joints_commands_out[ptuCommandNames[0]].effort = base::NaN<float>();
+    ptu_joints_commands_out[ptuCommandNames[1]].effort = base::NaN<float>();
+
     /** Set New Joints commands. RigidBodyState has priority against the joints commands in input ports **/
     if (_ptu_rbs_commands.read(ptu_rbs_commands) == RTT::NewData)
     {
@@ -111,35 +114,33 @@ void Task::updateHook()
             _ptu_commands_out.write(ptu_joints_commands_out);
         }
     }
-//    else
+
+    bool new_command = false;
+
+    double pan_command;
+    if (_pan_command_in.read(pan_command) == RTT::NewData)
     {
-        bool new_command = false;
+        ptu_joints_commands_out[ptuCommandNames[0]].position = pan_command;
 
-        double pan_command;
-        if (_pan_command_in.read(pan_command) == RTT::NewData)
-        {
-            ptu_joints_commands_out[ptuCommandNames[0]].position = pan_command;
+        /** Set the velocities to NaN **/
+        ptu_joints_commands_out[ptuCommandNames[0]].speed = base::NaN<float>();
+        new_command = true;
+    }
 
-            /** Set the velocities to NaN **/
-            ptu_joints_commands_out[ptuCommandNames[0]].speed = base::NaN<float>();
-            new_command = true;
-        }
+    double tilt_command;
+    if (_tilt_command_in.read(tilt_command) == RTT::NewData)
+    {
+        ptu_joints_commands_out[ptuCommandNames[1]].position = tilt_command;
 
-        double tilt_command;
-        if (_tilt_command_in.read(tilt_command) == RTT::NewData)
-        {
-            ptu_joints_commands_out[ptuCommandNames[1]].position = tilt_command;
+        /** Set the velocities to NaN **/
+        ptu_joints_commands_out[ptuCommandNames[1]].speed = base::NaN<float>();
+        new_command = true;
+    }
 
-            /** Set the velocities to NaN **/
-            ptu_joints_commands_out[ptuCommandNames[1]].speed = base::NaN<float>();
-            new_command = true;
-        }
-
-        if (new_command)
-        {
-            _ptu_commands_out.write(ptu_joints_commands_out);
-            new_command = false;
-        }
+    if (new_command)
+    {
+        _ptu_commands_out.write(ptu_joints_commands_out);
+        new_command = false;
     }
 
     base::samples::Joints ptu_samples;
