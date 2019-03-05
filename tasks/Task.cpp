@@ -62,6 +62,8 @@ bool Task::startHook()
     ptu_joints_commands_out[ptuCommandNames[1]].position = 0.00;
     ptu_joints_commands_out[ptuCommandNames[0]].speed = base::NaN<float>();
     ptu_joints_commands_out[ptuCommandNames[1]].speed = base::NaN<float>();
+    ptu_joints_commands_out[ptuCommandNames[0]].effort = base::NaN<float>();
+    ptu_joints_commands_out[ptuCommandNames[1]].effort = base::NaN<float>();
     _ptu_commands_out.write(ptu_joints_commands_out);
 
     return true;
@@ -69,9 +71,6 @@ bool Task::startHook()
 void Task::updateHook()
 {
     TaskBase::updateHook();
-
-    ptu_joints_commands_out[ptuCommandNames[0]].effort = base::NaN<float>();
-    ptu_joints_commands_out[ptuCommandNames[1]].effort = base::NaN<float>();
 
     /** Set New Joints commands. RigidBodyState has priority against the joints commands in input ports **/
     if (_ptu_rbs_commands.read(ptu_rbs_commands) == RTT::NewData)
@@ -115,32 +114,19 @@ void Task::updateHook()
         }
     }
 
-    bool new_command = false;
-
-    double pan_command;
-    if (_pan_command_in.read(pan_command) == RTT::NewData)
+    if (_pan_command_in.connected() && _tilt_command_in.connected())
     {
-        ptu_joints_commands_out[ptuCommandNames[0]].position = pan_command;
+        static double pan_command, tilt_command;
+        if (_pan_command_in.read(pan_command) == RTT::NewData ||
+            _tilt_command_in.read(tilt_command) == RTT::NewData)
+        {
+            ptu_joints_commands_out[ptuCommandNames[0]].position = pan_command;
+            ptu_joints_commands_out[ptuCommandNames[0]].speed = base::NaN<float>();
+            ptu_joints_commands_out[ptuCommandNames[1]].position = tilt_command;
+            ptu_joints_commands_out[ptuCommandNames[1]].speed = base::NaN<float>();
 
-        /** Set the velocities to NaN **/
-        ptu_joints_commands_out[ptuCommandNames[0]].speed = base::NaN<float>();
-        new_command = true;
-    }
-
-    double tilt_command;
-    if (_tilt_command_in.read(tilt_command) == RTT::NewData)
-    {
-        ptu_joints_commands_out[ptuCommandNames[1]].position = tilt_command;
-
-        /** Set the velocities to NaN **/
-        ptu_joints_commands_out[ptuCommandNames[1]].speed = base::NaN<float>();
-        new_command = true;
-    }
-
-    if (new_command)
-    {
-        _ptu_commands_out.write(ptu_joints_commands_out);
-        new_command = false;
+            _ptu_commands_out.write(ptu_joints_commands_out);
+        }
     }
 
     base::samples::Joints ptu_samples;
@@ -168,8 +154,8 @@ void Task::updateHook()
         /** Write the PTU transformation into the port **/
         _mast_to_ptu_out.write(mast2ptuRbs);
     }
-
 }
+
 void Task::errorHook()
 {
     TaskBase::errorHook();
